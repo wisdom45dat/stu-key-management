@@ -14,3 +14,6 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 
 // Handle registration submission
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+// Handle logout - ADD THIS MISSING ROUTE
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

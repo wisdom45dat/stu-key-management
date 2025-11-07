@@ -1,197 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STU Key Management - @yield('title', 'Dashboard')</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'STU Key Management')</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3b82f6',
-                        secondary: '#1e40af',
-                        success: '#10b981',
-                        warning: '#f59e0b',
-                        danger: '#ef4444'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .sidebar:hover {
-            width: 16rem;
-        }
-        .sidebar {
-            transition: all 0.3s ease;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-50">
-    <!-- Sidebar -->
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="sidebar bg-white shadow-lg w-20 md:w-64 fixed inset-y-0 left-0 z-50">
-            <div class="p-4 border-b border-gray-200">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-primary rounded-lg p-2">
-                        <i class="fas fa-key text-white text-xl"></i>
-                    </div>
-                    <span class="hidden md:block text-xl font-bold text-gray-800">STU Keys</span>
-                </div>
-            </div>
-            
-            <nav class="mt-6 px-2">
-                <!-- Dashboard -->
-                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-chart-pie text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Dashboard</span>
-                </a>
+<body class="font-sans antialiased">
+    <div class="min-h-screen bg-gray-100">
+        <!-- Navigation -->
+        <nav class="bg-white border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <!-- Logo -->
+                        <div class="shrink-0 flex items-center">
+                            <a href="{{ url('/dashboard') }}" class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
+                                STU Key Management
+                            </a>
+                        </div>
 
-                @can('access kiosk')
-                <!-- Kiosk -->
-                <a href="{{ route('kiosk.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('kiosk.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-qrcode text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Kiosk</span>
-                </a>
-                @endcan
-
-                @canany(['admin', 'security', 'hr'])
-                <!-- Keys -->
-                <a href="{{ route('keys.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('keys.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-key text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Key Management</span>
-                </a>
-                @endcanany
-
-                @can('admin')
-                <!-- Locations -->
-                <a href="{{ route('locations.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('locations.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-map-marker-alt text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Locations</span>
-                </a>
-                @endcan
-
-                @canany(['admin', 'hr'])
-                <!-- HR -->
-                <a href="{{ route('hr.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('hr.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-users text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">HR Management</span>
-                </a>
-                @endcanany
-
-                @canany(['admin', 'hr', 'auditor'])
-                <!-- Reports -->
-                <a href="{{ route('reports.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('reports.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-chart-bar text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Reports</span>
-                </a>
-                @endcanany
-
-                @can('admin')
-                <!-- Admin -->
-                <a href="{{ route('admin.users') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary rounded-lg transition-colors group {{ request()->routeIs('admin.*') ? 'bg-blue-50 text-primary border-r-2 border-primary' : '' }}">
-                    <i class="fas fa-cog text-lg w-6"></i>
-                    <span class="hidden md:block ml-3 font-medium">Admin</span>
-                </a>
-                @endcan
-            </nav>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 md:ml-20 lg:ml-64">
-            <!-- Top Navigation -->
-            <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="flex items-center justify-between px-6 py-4">
-                    <div class="flex items-center space-x-4">
-                        <button class="md:hidden text-gray-600">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                        <h1 class="text-2xl font-bold text-gray-800">@yield('title', 'Dashboard')</h1>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <!-- Notifications -->
-                        <button class="relative p-2 text-gray-600 hover:text-primary rounded-full hover:bg-gray-100">
-                            <i class="fas fa-bell text-lg"></i>
-                            <span class="absolute top-0 right-0 bg-danger text-white rounded-full w-2 h-2"></span>
-                        </button>
-
-                        <!-- User Menu -->
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100">
-                                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                                    <span class="text-white font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
-                                </div>
-                                <div class="hidden md:block text-left">
-                                    <p class="font-medium text-gray-800">{{ auth()->user()->name }}</p>
-                                    <p class="text-sm text-gray-600 capitalize">{{ auth()->user()->getRoleNames()->first() }}</p>
-                                </div>
-                                <i class="fas fa-chevron-down text-gray-400"></i>
-                            </button>
-
-                            <!-- Dropdown Menu -->
-                            <div x-show="open" @click.away="open = false" 
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                                <a href="{{ route('profile.show') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-user mr-3"></i>
-                                    Profile
+                        <!-- Navigation Links -->
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <a href="{{ url('/dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                                Dashboard
+                            </a>
+                            
+                            <!-- Role-specific navigation -->
+                            @auth
+                                @if(auth()->user()->hasRole('admin'))
+                                    <a href="{{ url('/admin/dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-purple-600 hover:text-purple-700 hover:border-purple-300 focus:outline-none focus:text-purple-700 focus:border-purple-300 transition duration-150 ease-in-out">
+                                        <i class="fas fa-crown mr-1"></i>Admin
+                                    </a>
+                                @endif
+                                
+                                @if(auth()->user()->hasRole('hr'))
+                                    <a href="{{ url('/hr/dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-pink-600 hover:text-pink-700 hover:border-pink-300 focus:outline-none focus:text-pink-700 focus:border-pink-300 transition duration-150 ease-in-out">
+                                        <i class="fas fa-user-tie mr-1"></i>HR
+                                    </a>
+                                @endif
+                                
+                                @if(auth()->user()->hasRole('security'))
+                                    <a href="{{ url('/security/dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-blue-600 hover:text-blue-700 hover:border-blue-300 focus:outline-none focus:text-blue-700 focus:border-blue-300 transition duration-150 ease-in-out">
+                                        <i class="fas fa-shield-alt mr-1"></i>Security
+                                    </a>
+                                @endif
+                                
+                                <a href="{{ url('/kiosk') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                                    Kiosk
                                 </a>
-                                <a href="{{ route('profile.activity') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-history mr-3"></i>
-                                    Activity Log
-                                </a>
-                                <div class="border-t border-gray-200 my-1"></div>
+                            @endauth
+                        </div>
+                    </div>
+
+                    <!-- Settings Dropdown -->
+                    <div class="hidden sm:flex sm:items-center sm:ms-6">
+                        <div class="ms-3 relative">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        @auth
+                                            @if(auth()->user()->hasRole('admin'))
+                                                <span class="text-purple-600"><i class="fas fa-crown mr-1"></i>Administrator</span>
+                                            @elseif(auth()->user()->hasRole('hr'))
+                                                <span class="text-pink-600"><i class="fas fa-user-tie mr-1"></i>HR Manager</span>
+                                            @elseif(auth()->user()->hasRole('security'))
+                                                <span class="text-blue-600"><i class="fas fa-shield-alt mr-1"></i>Security Officer</span>
+                                            @else
+                                                <span class="text-gray-600">User</span>
+                                            @endif
+                                        @endauth
+                                    </div>
+                                </div>
+                                
+                                <!-- Logout Form -->
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-50">
-                                        <i class="fas fa-sign-out-alt mr-3"></i>
-                                        Logout
+                                    <button type="submit" class="text-sm text-gray-700 hover:text-gray-900 focus:outline-none focus:underline transition duration-150 ease-in-out">
+                                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
                                     </button>
                                 </form>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Hamburger -->
+                    <div class="-me-2 flex items-center sm:hidden">
+                        <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                <path class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </header>
+            </div>
 
-            <!-- Page Content -->
-            <main class="p-6">
-                @if(session('success'))
-                    <div class="bg-success text-white p-4 rounded-lg mb-6 flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-circle mr-3"></i>
-                            <span>{{ session('success') }}</span>
+            <!-- Responsive Navigation Menu -->
+            <div class="sm:hidden">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a href="{{ url('/dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                        Dashboard
+                    </a>
+                    
+                    <!-- Role-specific mobile navigation -->
+                    @auth
+                        @if(auth()->user()->hasRole('admin'))
+                            <a href="{{ url('/admin/dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 border-purple-500 text-base font-medium text-purple-700 bg-purple-50 focus:outline-none focus:text-purple-800 focus:bg-purple-100 focus:border-purple-700 transition duration-150 ease-in-out">
+                                <i class="fas fa-crown mr-2"></i>Admin Panel
+                            </a>
+                        @endif
+                        
+                        @if(auth()->user()->hasRole('hr'))
+                            <a href="{{ url('/hr/dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 border-pink-500 text-base font-medium text-pink-700 bg-pink-50 focus:outline-none focus:text-pink-800 focus:bg-pink-100 focus:border-pink-700 transition duration-150 ease-in-out">
+                                <i class="fas fa-user-tie mr-2"></i>HR Panel
+                            </a>
+                        @endif
+                        
+                        @if(auth()->user()->hasRole('security'))
+                            <a href="{{ url('/security/dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 border-blue-500 text-base font-medium text-blue-700 bg-blue-50 focus:outline-none focus:text-blue-800 focus:bg-blue-100 focus:border-blue-700 transition duration-150 ease-in-out">
+                                <i class="fas fa-shield-alt mr-2"></i>Security Panel
+                            </a>
+                        @endif
+                        
+                        <a href="{{ url('/kiosk') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                            Kiosk
+                        </a>
+                    @endauth
+                </div>
+
+                <!-- Responsive Settings Options -->
+                <div class="pt-4 pb-1 border-t border-gray-200">
+                    <div class="px-4">
+                        <div class="text-base font-medium text-gray-800">{{ Auth::user()->name }}</div>
+                        <div class="text-sm font-medium text-gray-500">
+                            @auth
+                                @if(auth()->user()->hasRole('admin'))
+                                    <span class="text-purple-600"><i class="fas fa-crown mr-1"></i>Administrator</span>
+                                @elseif(auth()->user()->hasRole('hr'))
+                                    <span class="text-pink-600"><i class="fas fa-user-tie mr-1"></i>HR Manager</span>
+                                @elseif(auth()->user()->hasRole('security'))
+                                    <span class="text-blue-600"><i class="fas fa-shield-alt mr-1"></i>Security Officer</span>
+                                @else
+                                    <span class="text-gray-600">User</span>
+                                @endif
+                            @endauth
                         </div>
-                        <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
-                @endif
 
-                @if(session('error'))
-                    <div class="bg-danger text-white p-4 rounded-lg mb-6 flex items-center justify-between">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle mr-3"></i>
-                            <span>{{ session('error') }}</span>
-                        </div>
-                        <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-200">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <div class="mt-3 space-y-1">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </form>
                     </div>
-                @endif
+                </div>
+            </div>
+        </nav>
 
-                @yield('content')
-            </main>
-        </div>
+        <!-- Page Content -->
+        <main>
+            @yield('content')
+        </main>
     </div>
-
-    <!-- Alpine.js for interactivity -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    @stack('scripts')
 </body>
 </html>

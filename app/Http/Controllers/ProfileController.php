@@ -2,123 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use App\Models\SecurityShift;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
     public function show()
     {
-        $user = auth()->user();
-        $recentActivity = $user->keyLogsAsReceiver()
-            ->with(['key.location'])
-            ->latest()
-            ->limit(10)
-            ->get();
-
+        $user = Auth::user();
         $currentShift = $user->current_shift;
-
-        return view('profile.show', compact('user', 'recentActivity', 'currentShift'));
-    }
-
-    public function edit()
+        
+return view('profile.show', compact('user', 'currentShift'));    public function edit()
     {
-        return view('profile.edit');
+        $user = Auth::user();
+        return view(''profile.edit'', compact(''user''));
     }
 
     public function update(Request $request)
     {
-        $user = auth()->user();
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('users')->ignore($user->id),
-            ],
-            'phone' => 'required|string|max:20',
-            'avatar' => 'nullable|image|max:2048',
-        ]);
-
-        if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        $user->update($validated);
-
-        return redirect()->route('profile.show')
-            ->with('success', 'Profile updated successfully.');
-    }
-
-    public function updatePassword(Request $request)
-    {
+        $user = Auth::user();
+        
         $request->validate([
-            'current_password' => 'required|current_password',
-            'password' => 'required|min:8|confirmed',
+            ''name'' => ''required|string|max:255'',
+            ''email'' => ''required|email|unique:users,email,'' . $user->id,
         ]);
 
-        auth()->user()->update([
-            'password' => Hash::make($request->password),
-        ]);
+        $user->update($request->only(''name'', ''email''));
 
-        return redirect()->route('profile.show')
-            ->with('success', 'Password updated successfully.');
+        return redirect()->route(''profile.show'')->with(''success'', ''Profile updated successfully.'');
     }
 
-    public function activityLog()
+    public function activity()
     {
-        $activity = auth()->user()->keyLogsAsReceiver()
-            ->with(['key.location', 'holder'])
-            ->latest()
-            ->paginate(20);
-
-        return view('profile.activity', compact('activity'));
+        $user = Auth::user();
+        $activities = $user->keyLogs()->with(''key.location'')->latest()->paginate(10);
+        
+        return view(''profile.activity'', compact(''user'', ''activities''));
     }
 
-    public function shiftHistory()
+    public function shifts()
     {
-        $shifts = auth()->user()->securityShifts()
-            ->latest()
-            ->paginate(20);
-
-        return view('profile.shift-history', compact('shifts'));
-    }
-
-    public function startShift(Request $request)
-    {
-        $user = auth()->user();
-
-        if ($user->isOnShift()) {
-            return redirect()->back()->with('error', 'You are already on an active shift.');
-        }
-
-        $user->securityShifts()->create([
-            'start_at' => now(),
-            'notes' => $request->notes,
-        ]);
-
-        return redirect()->route('profile.show')
-            ->with('success', 'Shift started successfully.');
+        $user = Auth::user();
+        $shifts = $user->securityShifts()->latest()->paginate(10);
+        
+        return view(''profile.shifts'', compact(''user'', ''shifts''));
     }
 
     public function endShift(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $currentShift = $user->current_shift;
 
-        if (!$currentShift) {
-            return redirect()->back()->with('error', 'No active shift found.');
+        if ($currentShift) {
+            $currentShift->update([
+                ''end_at'' => now(),
+                ''notes'' => $request->input(''notes'', '''')
+            ]);
+
+            return redirect()->route(''dashboard'')->with(''success'', ''Shift ended successfully.'');
         }
 
-        $currentShift->update([
-            'end_at' => now(),
-            'notes' => $currentShift->notes . "\n" . $request->notes,
-        ]);
-
-        return redirect()->route('profile.show')
-            ->with('success', 'Shift ended successfully.');
+        return redirect()->route(''dashboard'')->with(''error'', ''No active shift found.'');
     }
 }
